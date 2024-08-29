@@ -1,4 +1,4 @@
-package shorten
+package entity
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 
 func TestNewURL(t *testing.T) {
 	t.Run("valid input", func(t *testing.T) {
-		key, longURL, shortURL := "exmpl", "https://example.com", "https://shorten.io/exmpl"
+		key, longURL, shortURL := "exmpl", "https://example.com", "http://localhost:8080/exmpl"
 
 		url := NewURL(key, longURL)
 
@@ -62,4 +62,27 @@ func TestValidate(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFromToJSON(t *testing.T) {
+	t.Run("encode to JSON", func(t *testing.T) {
+		url := NewURL("exmpl", "https://example.com")
+		str, err := url.ToJSON()
+		if err != nil {
+			t.Errorf("expected %v, got %v", nil, err)
+		}
+		if str == "" {
+			t.Error("expected encoded url, got empty string")
+		}
+	})
+
+	t.Run("decode to JSON", func(t *testing.T) {
+		url := NewURL("exmpl", "https://example.com")
+		str, _ := url.ToJSON()
+
+		err := url.FromJSON(str)
+		if err != nil {
+			t.Errorf("expected nil, got %v", err)
+		}
+	})
 }

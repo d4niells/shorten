@@ -1,6 +1,7 @@
-package shorten
+package entity
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -22,7 +23,7 @@ func NewURL(key, longURL string) *URL {
 	return &URL{
 		Key:       key,
 		LongURL:   longURL,
-		ShortURL:  fmt.Sprintf("https://shorten.io/%s", key),
+		ShortURL:  fmt.Sprintf("http://localhost:8080/%s", key),
 		CreatedAt: time.Now(),
 	}
 }
@@ -35,4 +36,16 @@ func (u *URL) Validate() error {
 		return ErrEmptyLongURL
 	}
 	return nil
+}
+
+func (u *URL) ToJSON() (string, error) {
+	bytes, err := json.Marshal(&u)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
+}
+
+func (u *URL) FromJSON(data string) error {
+	return json.Unmarshal([]byte(data), u)
 }
