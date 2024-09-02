@@ -28,6 +28,7 @@ func main() {
 
 	r := http.NewServeMux()
 	r.HandleFunc("POST /", urlHandler.Shorten)
+	r.HandleFunc("GET /{key}", urlHandler.Resolver)
 
 	srv := http.Server{
 		Addr:         PORT,

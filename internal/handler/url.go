@@ -40,3 +40,16 @@ func (h *URLHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(url)
 }
+
+func (h *URLHandler) Resolver(w http.ResponseWriter, r *http.Request) {
+	key := r.PathValue("key")
+
+	url, err := h.urlService.Resolver(r.Context(), key)
+	if err != nil {
+		http.Error(w, "URL not found", http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Location", url.LongURL)
+	w.WriteHeader(http.StatusFound)
+}

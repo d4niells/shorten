@@ -12,6 +12,7 @@ import (
 
 type URLService interface {
 	Shorten(ctx context.Context, longURL string) (*entity.URL, error)
+	Resolver(ctx context.Context, key string) (*entity.URL, error)
 }
 
 type URLServiceImpl struct {
@@ -45,6 +46,15 @@ func (s *URLServiceImpl) Shorten(ctx context.Context, longURL string) (*entity.U
 	}
 
 	return newURL, nil
+}
+
+func (s *URLServiceImpl) Resolver(ctx context.Context, key string) (*entity.URL, error) {
+	url, err := s.cache.Get(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+
+	return url, nil
 }
 
 func genSHA256Hash(url string, length int) string {
