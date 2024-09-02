@@ -34,13 +34,13 @@ func (c *CacheRepositoryImpl) Get(ctx context.Context, key string) (*entity.URL,
 		return nil, err
 	}
 
-	var url *entity.URL
+	var url entity.URL
 	err = url.FromJSON(str)
 	if err != nil {
 		return nil, err
 	}
 
-	return url, nil
+	return &url, nil
 }
 
 func (c *CacheRepositoryImpl) Set(ctx context.Context, url *entity.URL, expiration time.Duration) error {

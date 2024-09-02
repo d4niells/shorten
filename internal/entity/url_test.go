@@ -7,7 +7,7 @@ import (
 
 func TestNewURL(t *testing.T) {
 	t.Run("valid input", func(t *testing.T) {
-		key, longURL, shortURL := "exmpl", "https://example.com", "http://localhost:8080/exmpl"
+		key, longURL, shortURL := "EAaArVRs", "https://example.com", "http://localhost:8080/EAaArVRs"
 
 		url := NewURL(key, longURL)
 
@@ -32,7 +32,7 @@ func TestValidate(t *testing.T) {
 		{
 			name: "valid URL",
 			url: &URL{
-				Key:     "exmpl",
+				Key:     "EAaArVRs",
 				LongURL: "https://example.com",
 			},
 			err: nil,
@@ -47,9 +47,17 @@ func TestValidate(t *testing.T) {
 		{
 			name: "missing long URL",
 			url: &URL{
-				Key: "exmpl",
+				Key: "EAaArVRs",
 			},
 			err: ErrEmptyLongURL,
+		},
+		{
+			name: "invalid key size",
+			url: &URL{
+				Key:     "example-of-large-key",
+				LongURL: "https://example.com",
+			},
+			err: ErrInvalidKeySize,
 		},
 	}
 
@@ -66,7 +74,7 @@ func TestValidate(t *testing.T) {
 
 func TestFromToJSON(t *testing.T) {
 	t.Run("encode to JSON", func(t *testing.T) {
-		url := NewURL("exmpl", "https://example.com")
+		url := NewURL("EAaArVRs", "https://example.com")
 		str, err := url.ToJSON()
 		if err != nil {
 			t.Errorf("expected %v, got %v", nil, err)
@@ -77,7 +85,7 @@ func TestFromToJSON(t *testing.T) {
 	})
 
 	t.Run("decode to JSON", func(t *testing.T) {
-		url := NewURL("exmpl", "https://example.com")
+		url := NewURL("EAaArVRs", "https://example.com")
 		str, _ := url.ToJSON()
 
 		err := url.FromJSON(str)

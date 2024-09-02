@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
 	"time"
 
 	"github.com/d4niells/shorten/internal/entity"
@@ -21,19 +23,32 @@ func NewURLService(cache repository.CacheRepository) *URLServiceImpl {
 }
 
 func (s *URLServiceImpl) Shorten(ctx context.Context, longURL string) (*entity.URL, error) {
-	// TODO: Create an algorithm to be able to generate an unique key. We must
-	// check for key collision and idempotency.
-	url := entity.NewURL("unique-key", longURL)
+	key := genSHA256Hash(longURL, entity.KEY_SIZE)
 
-	if err := url.Validate(); err != nil {
+	cachedURL, err := s.cache.Get(ctx, key)
+	if err == nil {
+		return cachedURL, nil
+	}
+
+	if err != repository.ErrKeyDoesNotExist {
 		return nil, err
 	}
 
-	// TODO: I need to think about a great expiration time for shortened URLs
-	err := s.cache.Set(ctx, url, time.Duration(0))
-	if err != nil {
+	newURL := entity.NewURL(key, longURL)
+	if err := newURL.Validate(); err != nil {
 		return nil, err
 	}
 
-	return url, nil
+	// TODO: Add a great expiration time for shortened URLs
+	if err := s.cache.Set(ctx, newURL, time.Duration(0)); err != nil {
+		return nil, err
+	}
+
+	return newURL, nil
+}
+
+func genSHA256Hash(url string, length int) string {
+	hash := sha256.Sum256([]byte(url))
+	encodedHash := base64.URLEncoding.EncodeToString(hash[:])
+	return encodedHash[:length]
 }

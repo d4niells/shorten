@@ -23,7 +23,7 @@ func (h *URLHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "invalid request payload", http.StatusBadRequest)
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
 		return
 	}
 
@@ -33,7 +33,7 @@ func (h *URLHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "long_url cannot be empty", http.StatusBadRequest)
 			return
 		}
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 

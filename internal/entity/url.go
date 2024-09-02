@@ -7,9 +7,12 @@ import (
 	"time"
 )
 
+const KEY_SIZE = 8
+
 var (
-	ErrEmptyKey     = errors.New("key cannot be empty")
-	ErrEmptyLongURL = errors.New("long url cannot be empty")
+	ErrEmptyKey       = errors.New("key cannot be empty")
+	ErrEmptyLongURL   = errors.New("long url cannot be empty")
+	ErrInvalidKeySize = errors.New("key must be 8 characters long")
 )
 
 type URL struct {
@@ -31,6 +34,9 @@ func NewURL(key, longURL string) *URL {
 func (u *URL) Validate() error {
 	if u.Key == "" {
 		return ErrEmptyKey
+	}
+	if len(u.Key) != KEY_SIZE {
+		return ErrInvalidKeySize
 	}
 	if u.LongURL == "" {
 		return ErrEmptyLongURL
