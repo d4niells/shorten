@@ -19,7 +19,7 @@ const (
 func main() {
 	redisClient := redis.NewClient(&redis.Options{Addr: REDIS_ADDR})
 	if err := redisClient.Ping().Err(); err != nil {
-		log.Fatalf("Couldn't connect to Redis: %v\n", err)
+		log.Fatalf("couldn't connect to Redis: %v\n", err)
 	}
 
 	cache := repository.NewCache(redisClient)
@@ -38,6 +38,6 @@ func main() {
 	}
 
 	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-		log.Fatalf("Couldn't listen on port %v: %v\n", PORT, err)
+		log.Fatalf("couldn't listen on port %v: %v\n", PORT, err)
 	}
 }

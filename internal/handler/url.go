@@ -23,17 +23,17 @@ func (h *URLHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		http.Error(w, "invalid request payload", http.StatusBadRequest)
 		return
 	}
 
 	url, err := h.urlService.Shorten(r.Context(), req.LongURL)
 	if err != nil {
 		if errors.Is(err, entity.ErrEmptyLongURL) {
-			http.Error(w, "long_url cannot be empty", http.StatusBadRequest)
+			http.Error(w, "missing field: long_url cannot be empty", http.StatusBadRequest)
 			return
 		}
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
