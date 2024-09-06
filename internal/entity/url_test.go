@@ -59,6 +59,14 @@ func TestValidate(t *testing.T) {
 			},
 			err: ErrInvalidKeySize,
 		},
+		{
+			name: "invalid url",
+			url: &URL{
+				Key:     "EAaArVRs",
+				LongURL: ":///example.com",
+			},
+			err: ErrInvalidLongURLFormat,
+		},
 	}
 
 	for _, tc := range testcases {

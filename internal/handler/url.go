@@ -33,11 +33,16 @@ func (h *URLHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "missing field: long_url cannot be empty", http.StatusBadRequest)
 			return
 		}
+		if errors.Is(err, entity.ErrInvalidLongURLFormat) {
+			http.Error(w, "invalid URL format", http.StatusBadRequest)
+			return
+		}
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(url)
 }
 

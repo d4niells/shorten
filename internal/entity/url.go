@@ -5,14 +5,17 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	utils "github.com/d4niells/shorten/pkg"
 )
 
 const KEY_SIZE = 8
 
 var (
-	ErrEmptyKey       = errors.New("key cannot be empty")
-	ErrEmptyLongURL   = errors.New("long url cannot be empty")
-	ErrInvalidKeySize = errors.New("key must be 8 characters long")
+	ErrEmptyKey             = errors.New("key cannot be empty")
+	ErrEmptyLongURL         = errors.New("long url cannot be empty")
+	ErrInvalidKeySize       = errors.New("key must be 8 characters long")
+	ErrInvalidLongURLFormat = errors.New("invalid URL format")
 )
 
 type URL struct {
@@ -40,6 +43,9 @@ func (u *URL) Validate() error {
 	}
 	if u.LongURL == "" {
 		return ErrEmptyLongURL
+	}
+	if !utils.IsValidURL(u.LongURL) {
+		return ErrInvalidLongURLFormat
 	}
 	return nil
 }
