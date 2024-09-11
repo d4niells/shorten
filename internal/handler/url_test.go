@@ -211,7 +211,7 @@ func TestResolverHandler(t *testing.T) {
 		}
 
 		if res.Header.Get("Location") != longURL {
-			t.Fatalf("Expected redirect to %s, got %s", longURL, res.Header.Get("Location"))
+			t.Fatalf("expected redirect to %s, got %s", longURL, res.Header.Get("Location"))
 		}
 
 		t.Cleanup(func() {
@@ -220,5 +220,25 @@ func TestResolverHandler(t *testing.T) {
 				t.Fatalf("Error deleting key from Redis: %s", err)
 			}
 		})
+	})
+
+	t.Run("URL not found", func(t *testing.T) {
+		_, urlHandler := setupTestEnvironment(t)
+
+		req := httptest.NewRequest(http.MethodGet, "/test-key", nil)
+		rec := httptest.NewRecorder()
+
+		urlHandler.ServeHTTP(rec, req)
+
+		res := rec.Result()
+		defer res.Body.Close()
+
+		if res.StatusCode != http.StatusNotFound {
+			t.Fatalf("expected status code to be 404 Not Found, got %d", res.StatusCode)
+		}
+
+		if res.Header.Get("Location") != "" {
+			t.Fatalf("expected empty Location header, got %s", res.Header.Get("Location"))
+		}
 	})
 }
