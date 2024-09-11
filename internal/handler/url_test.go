@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -14,7 +15,9 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func setupTestEnvironment() *http.ServeMux {
+func setupTestEnvironment(t *testing.T) (*service.URLServiceImpl, *http.ServeMux) {
+	t.Helper()
+
 	redisClient := redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
@@ -27,13 +30,13 @@ func setupTestEnvironment() *http.ServeMux {
 	r.HandleFunc("/", urlHandler.Shorten)
 	r.HandleFunc("/{key}", urlHandler.Resolver)
 
-	return r
+	return urlService, r
 }
 
 // TODO: add test cleanup to delete keys from Redis to avoid misunderstandings
 func TestShortenHandler(t *testing.T) {
 	t.Run("return a short url", func(t *testing.T) {
-		urlHandler := setupTestEnvironment()
+		_, urlHandler := setupTestEnvironment(t)
 
 		server := httptest.NewServer(urlHandler)
 		defer server.Close()
@@ -85,7 +88,7 @@ func TestShortenHandler(t *testing.T) {
 	})
 
 	t.Run("invalid request payload", func(t *testing.T) {
-		urlHandler := setupTestEnvironment()
+		_, urlHandler := setupTestEnvironment(t)
 
 		server := httptest.NewServer(urlHandler)
 		defer server.Close()
@@ -116,7 +119,7 @@ func TestShortenHandler(t *testing.T) {
 	})
 
 	t.Run("missing field", func(t *testing.T) {
-		urlHandler := setupTestEnvironment()
+		_, urlHandler := setupTestEnvironment(t)
 
 		server := httptest.NewServer(urlHandler)
 		defer server.Close()
@@ -150,7 +153,7 @@ func TestShortenHandler(t *testing.T) {
 	})
 
 	t.Run("invalid URL format", func(t *testing.T) {
-		urlHandler := setupTestEnvironment()
+		_, urlHandler := setupTestEnvironment(t)
 
 		server := httptest.NewServer(urlHandler)
 		defer server.Close()
@@ -181,5 +184,41 @@ func TestShortenHandler(t *testing.T) {
 		if strings.TrimSpace(string(resBody)) != "invalid URL format" {
 			t.Errorf(`expected error message "invalid URL format", got %s`, resBody)
 		}
+	})
+}
+
+func TestResolverHandler(t *testing.T) {
+	t.Run("URL found", func(t *testing.T) {
+		urlService, urlHandler := setupTestEnvironment(t)
+
+		longURL := "https://example.com"
+
+		newURL, err := urlService.Shorten(context.Background(), longURL)
+		if err != nil {
+			t.Fatalf("Error creating short URL: %v", err)
+		}
+
+		req := httptest.NewRequest(http.MethodGet, "/"+newURL.Key, nil)
+		rec := httptest.NewRecorder()
+
+		urlHandler.ServeHTTP(rec, req)
+
+		res := rec.Result()
+		defer res.Body.Close()
+
+		if res.StatusCode != http.StatusFound {
+			t.Fatalf("expected status code to be 302 Found, got %d", res.StatusCode)
+		}
+
+		if res.Header.Get("Location") != longURL {
+			t.Fatalf("Expected redirect to %s, got %s", longURL, res.Header.Get("Location"))
+		}
+
+		t.Cleanup(func() {
+			err := urlService.Delete(context.Background(), newURL.Key)
+			if err != nil {
+				t.Fatalf("Error deleting key from Redis: %s", err)
+			}
+		})
 	})
 }

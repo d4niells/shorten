@@ -47,14 +47,11 @@ func (h *URLHandler) Shorten(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *URLHandler) Resolver(w http.ResponseWriter, r *http.Request) {
-	key := r.PathValue("key")
-
-	url, err := h.urlService.Resolver(r.Context(), key)
+	url, err := h.urlService.Resolver(r.Context(), r.PathValue("key"))
 	if err != nil {
 		http.Error(w, "URL not found", http.StatusNotFound)
 		return
 	}
 
-	w.Header().Set("Location", url.LongURL)
-	w.WriteHeader(http.StatusFound)
+	http.Redirect(w, r, url.LongURL, http.StatusFound)
 }

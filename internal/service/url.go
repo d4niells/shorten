@@ -57,6 +57,10 @@ func (s *URLServiceImpl) Resolver(ctx context.Context, key string) (*entity.URL,
 	return url, nil
 }
 
+func (s *URLServiceImpl) Delete(ctx context.Context, key string) error {
+	return s.cache.Del(ctx, key)
+}
+
 func genSHA256Hash(url string, length int) string {
 	hash := sha256.Sum256([]byte(url))
 	encodedHash := base64.URLEncoding.EncodeToString(hash[:])
