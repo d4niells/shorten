@@ -3,7 +3,7 @@ package utils
 import "testing"
 
 func TestIsValidURL(t *testing.T) {
-	testcase := []struct {
+	testCases := []struct {
 		name     string
 		url      string
 		expected bool
@@ -19,11 +19,11 @@ func TestIsValidURL(t *testing.T) {
 		{url: "xpto:///example.com", expected: false},
 	}
 
-	for _, c := range testcase {
-		t.Run(c.name, func(t *testing.T) {
-			got := IsValidURL(c.url)
-			if got != c.expected {
-				t.Errorf("expected %t, got %t", c.expected, got)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := IsValidURL(tc.url)
+			if got != tc.expected {
+				t.Errorf("expected %t, got %t", tc.expected, got)
 			}
 		})
 	}

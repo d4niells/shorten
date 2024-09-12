@@ -24,7 +24,7 @@ func TestNewURL(t *testing.T) {
 }
 
 func TestValidate(t *testing.T) {
-	testcases := []struct {
+	testCases := []struct {
 		name string
 		url  *URL
 		err  error
@@ -69,7 +69,7 @@ func TestValidate(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testcases {
+	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			err := tc.url.Validate()
 
