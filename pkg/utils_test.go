@@ -8,15 +8,16 @@ func TestIsValidURL(t *testing.T) {
 		url      string
 		expected bool
 	}{
-		{name: "https", url: "https://example.com", expected: true},
-		{name: "http", url: "http://example.com", expected: true},
-		{name: "https with query params", url: "https://example.com/path?query=string#d", expected: true},
-		{name: "without schema and domain", url: "invalid-url", expected: false},
-		{name: "invalid schema", url: "ftp://example.com", expected: false},
-		{name: "without schema", url: "://example.com", expected: false},
+		{name: "with https scheme", url: "https://example.com", expected: true},
+		{name: "with http scheme", url: "http://example.com", expected: true},
+		{name: "with query param and fragment", url: "https://example.com/path?query=string#fragment", expected: true},
+		{name: "plain text", url: "example", expected: false},
+		{name: "invalid scheme", url: "ftp://example.com", expected: false},
+		{name: "without scheme", url: "://example.com", expected: false},
 		{name: "empty string", url: "", expected: false},
-		{name: "ispace in domain", url: "https://exa mple.com", expected: false},
-		{url: "xpto:///example.com", expected: false},
+		{name: "without hostname", url: "https://", expected: false},
+		{name: "empty space between hostname", url: "https://exa mple.com", expected: false},
+		{name: "triple slash", url: "https:///example.com", expected: false},
 	}
 
 	for _, tc := range testCases {
