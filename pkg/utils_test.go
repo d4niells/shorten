@@ -29,3 +29,9 @@ func TestIsValidURL(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkIsValidURL(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		IsValidURL("https://example.com")
+	}
+}
