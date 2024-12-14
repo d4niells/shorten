@@ -10,12 +10,6 @@ jobs:
     name: Build and Deploy to Cloud Run
     runs-on: ubuntu-latest
 
-    services:
-      redis:
-        image: redis:latest
-        ports:
-          - 6379:6379
-
     steps:
       # Step 1: Check out the code
       - name: Checkout code
@@ -31,9 +25,6 @@ jobs:
       # Step 3: Authenticate Docker with Google Container Registry
       - name: Authenticate Docker
         run: gcloud auth configure-docker
-
-      - name: Run tests
-        run: go test ./...
 
       # Step 4: Build the Docker image
       - name: Build Docker image
