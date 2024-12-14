@@ -1,0 +1,48 @@
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy to Cloud Run
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Google Cloud CLI
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT }}
+
+      # Step 3: Authenticate Docker with Google Container Registry
+      - name: Authenticate Docker
+        run: gcloud auth configure-docker
+
+      - name: Run tests
+        run: go test ./...
+
+      # Step 4: Build the Docker image
+      - name: Build Docker image
+        run: docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/shorten .
+
+      # Step 5: Push the Docker image to Google Container Registry
+      - name: Push Docker image
+        run: docker push gcr.io/${{ secrets.GCP_PROJECT }}/shorten
+
+      # Step 6: Deploy to Cloud Run
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy shorten \
+            --image gcr.io/${{ secrets.GCP_PROJECT }}/shorten \
+            --region ${{ secrets.GCP_REGION }} \
+            --platform managed \
+            --allow-unauthenticated
+
