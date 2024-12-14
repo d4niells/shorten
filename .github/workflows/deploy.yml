@@ -25,8 +25,8 @@ jobs:
 
     - name: Build and Push Docker Image
       run: |
-        docker build -t gcr.io/${{ secrets.GCP_PROJECT }}/shorten-api:latest .
-        docker push gcr.io/${{ secrets.GCP_PROJECT }}/shorten-api:latest
+        docker buildx create --use
+        docker buildx build --platform linux/amd64,linux/arm64 -t gcr.io/${{ secrets.GCP_PROJECT }}/shorten-api:latest --push . 
 
     - name: Deploy to Cloud Run
       run: |
