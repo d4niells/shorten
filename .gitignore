@@ -1,3 +1,4 @@
 dump.rdb
+.env
 bin
 test/cover
