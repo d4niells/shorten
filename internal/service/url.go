@@ -19,6 +19,10 @@ type URLServiceImpl struct {
 	cache repository.CacheRepository
 }
 
+const (
+	TTL_ONE_WEEK = time.Duration(7 * 24 * time.Hour)
+)
+
 func NewURLService(cache repository.CacheRepository) *URLServiceImpl {
 	return &URLServiceImpl{cache}
 }
@@ -40,8 +44,7 @@ func (s *URLServiceImpl) Shorten(ctx context.Context, longURL string) (*entity.U
 		return nil, err
 	}
 
-	// TODO: Add a great expiration time for shortened URLs
-	if err := s.cache.Set(ctx, newURL, time.Duration(0)); err != nil {
+	if err := s.cache.Set(ctx, newURL, TTL_ONE_WEEK); err != nil {
 		return nil, err
 	}
 
