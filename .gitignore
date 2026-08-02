@@ -1,4 +1,5 @@
 dump.rdb
 .env
+.idea
 bin
 test/cover
