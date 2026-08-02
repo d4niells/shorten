@@ -46,16 +46,16 @@ func main() {
 
 	r := http.NewServeMux()
 
-	// API endpoints
+	// Static files (register BEFORE catch-all routes)
+	r.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
+
+	// API endpoints (specific routes)
 	r.HandleFunc("POST /api/shorten", urlHandler.Shorten)
 	r.HandleFunc("GET /{key}", urlHandler.Resolver)
 
-	// Frontend with Go templates
+	// Frontend with Go templates (catch-all, register LAST)
 	r.HandleFunc("GET /", webHandler.Home)
 	r.HandleFunc("POST /", webHandler.Home)
-
-	// Static files
-	r.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 
 	port := os.Getenv("PORT")
 	if port == "" {
